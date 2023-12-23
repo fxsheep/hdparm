@@ -28,6 +28,26 @@
 
 extern int verbose;
 
+static int activate_firmware (int fd)
+{
+	int err = 0;
+	struct hdio_taskfile r;
+	unsigned int timeout_secs = 120;
+
+	init_hdio_taskfile(&r, ATA_OP_DOWNLOAD_MICROCODE, RW_WRITE, LBA28_OK, 0, 0, 0);
+
+	r.lob.feat = 0xf;
+	r.oflags.bits.lob.feat  = 1;
+
+	if (do_taskfile_cmd(fd, &r, timeout_secs)) {
+		err = errno;
+		perror("FAILED");
+	} 
+
+	return err;
+}
+
+
 /* Download a firmware segment to the drive */
 static int send_firmware (int fd, unsigned int xfer_mode, unsigned int offset,
 			  const void *data, unsigned int bytecount)
@@ -94,6 +114,13 @@ int fwdownload (int fd, __u16 *id, const char *fwpath, int xfer_mode)
 	const int max_bytes = 0xffff * 512;
 	int xfer_min = 1, xfer_max = 0xffff, xfer_size;
 	ssize_t offset;
+
+	if (xfer_mode == 0xf) {
+		err = activate_firmware(fd);
+		if (!err)
+			printf(" Done.\n");
+		return err;
+	}
 
 	if ((fwfd = open(fwpath, O_RDONLY)) == -1 || fstat(fwfd, &st) == -1) {
 		err = errno;

@@ -1966,6 +1966,7 @@ static void usage_help (int clue, int rc)
 	" --fwdownload-mode7      Download firmware using a single segment (EXTREMELY DANGEROUS)\n"
 	" --fwdownload-modee      Download firmware using mode E (min-size segments) (EXTREMELY DANGEROUS)\n"
 	" --fwdownload-modee-max  Download firmware using mode E (max-size segments) (EXTREMELY DANGEROUS)\n"
+	" --fwdownload-activate   Activate downloaded firmware (EXTREMELY DANGEROUS)\n"
 	" --idle-immediate  Idle drive immediately\n"
 	" --idle-unload     Idle immediately and unload heads\n"
 	" --Iraw filename   Write raw binary identify data to the specfied file\n"
@@ -3292,6 +3293,9 @@ get_longarg (void)
 		do_fallocate(name);
 	} else if (0 == strcasecmp(name, "fibmap")) {
 		do_fibmap_file(name);
+	} else if (0 == strcasecmp(name, "fwdownload-activate")) {
+		do_fwdownload = 1;
+		xfer_mode = 0xf;
 	} else if (0 == strcasecmp(name, "fwdownload-mode3")) {
 		get_filename_parm(&fwpath, name);
 		do_fwdownload = 1;
